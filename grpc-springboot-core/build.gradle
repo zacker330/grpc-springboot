@@ -1,0 +1,55 @@
+group 'codes.showme.examples.grpc.springboot.core'
+
+version '1.0-SNAPSHOT'
+
+apply plugin: 'com.google.protobuf'
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile('org.lognet:grpc-spring-boot-starter:2.1.5')
+    compile "io.grpc:grpc-netty:${grpcVersion}"
+    compile "io.grpc:grpc-protobuf:${grpcVersion}"
+    compile "io.grpc:grpc-core:${grpcVersion}"
+    compile "io.grpc:grpc-stub:${grpcVersion}"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/protoGen'
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+
+    generateProtoTasks {
+        ofSourceSet('main').each { task ->
+            task.builtins {
+                java{
+                    outputSubDir = 'protoGen'
+                }
+            }
+            task.plugins {
+                grpc {
+                    outputSubDir = 'protoGen'
+                }
+            }
+        }
+    }
+    generatedFilesBaseDir = "$projectDir/src/"
+}
+

@@ -1,0 +1,9 @@
+group 'codes.showme.examples'
+version '1.0-SNAPSHOT'
+
+
+dependencies {
+    compile project(':grpc-springboot-core')
+//    testCompile "io.grpc:grpc-netty:${grpcVersion}"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
