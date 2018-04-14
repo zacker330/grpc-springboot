@@ -10,7 +10,6 @@ repositories {
 }
 
 dependencies {
-    compile('org.lognet:grpc-spring-boot-starter:2.1.5')
     compile "io.grpc:grpc-netty:${grpcVersion}"
     compile "io.grpc:grpc-protobuf:${grpcVersion}"
     compile "io.grpc:grpc-core:${grpcVersion}"

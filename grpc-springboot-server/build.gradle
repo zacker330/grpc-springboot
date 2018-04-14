@@ -4,8 +4,9 @@ version '1.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 
-repositories {
-    mavenCentral()
+
+ext {
+    prometheus_client_version = '0.3.0'
 }
 
 
@@ -15,6 +16,14 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-actuator"
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile('org.lognet:grpc-spring-boot-starter:2.1.5')
+
+    compile("io.prometheus:simpleclient:$prometheus_client_version")
+    compile("io.prometheus:simpleclient_hotspot:$prometheus_client_version")
+    compile("io.prometheus:simpleclient_servlet:$prometheus_client_version")
+    compile("io.prometheus:simpleclient_spring_boot:$prometheus_client_version"){
+        exclude group: "org.springframework.boot"
+    }
+
 
     testCompile 'org.springframework.boot:spring-boot-starter-aop'
     testCompile('org.springframework.boot:spring-boot-starter-test')
