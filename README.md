@@ -14,3 +14,8 @@ curl 192.168.0.104:8091/metrics
 ### about dev
 for app's metrics, you can setup a prometheus+grafana stack 
 with this repo: https://github.com/vegasbrianc/prometheus 
+
+for grpc's client demo app: run it with command line:
+```bash
+./gradlew grpc-springboot-client-example:bootrun
+```

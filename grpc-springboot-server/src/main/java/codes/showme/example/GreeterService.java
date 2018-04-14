@@ -24,9 +24,9 @@ public class GreeterService extends GreeterGrpc.GreeterImplBase {
         Histogram.Timer requestTimer = requestLatency.startTimer();
         try {
             String message = "Hello " + request.getName();
+            log.info("req: {}", request.getName());
             final GreeterOuterClass.HelloReply.Builder replyBuilder = GreeterOuterClass.HelloReply.newBuilder().setMessage(message);
             responseObserver.onNext(replyBuilder.build());
-
             responseObserver.onCompleted();
 
             log.info("Returning " + message);
