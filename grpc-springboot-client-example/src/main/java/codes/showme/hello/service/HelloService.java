@@ -4,51 +4,67 @@ import codes.showme.examples.GreeterGrpc;
 import codes.showme.examples.GreeterOuterClass;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import java.net.URI;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @Component
-public class HelloService implements InitializingBean{
+public class HelloService implements InitializingBean {
 
-    private ManagedChannel channel;
+    public static final String GRPC_SERVER_NAME = "grpc-server";
 
-    @Value("${helloServiceHost:localhost}")
-    private String helloServiceHost;
+    private static final Logger logger = LoggerFactory.getLogger(HelloService.class);
 
-    @Value("${helloServicePort:6565}")
-    private int helloServicePort;
+
+    @Resource
+    private DiscoveryClient discoveryClient;
 
     public String hello(String aString) {
         String result = "";
         try {
-            result = GreeterGrpc.newFutureStub(channel)
-                    .sayHello(GreeterOuterClass.HelloRequest.newBuilder().setName(aString == null ? "default":aString).build())
+            result = GreeterGrpc.newFutureStub(getChannel())
+                    .sayHello(GreeterOuterClass.HelloRequest.newBuilder().setName(aString == null ? "default" : aString).build())
                     .get().getMessage();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+
         return result;
     }
 
+    public Optional<ServiceInstance> service() {
+        return discoveryClient.getInstances(GRPC_SERVER_NAME)
+                .stream().findFirst();
+    }
 
-
+    private ManagedChannel getChannel(){
+        if (service().isPresent()) {
+            final ServiceInstance serviceInstance = service().get();
+            final URI uri = serviceInstance.getUri();
+            final String helloServiceHost = uri.getHost();
+            int gRpcPort=Integer.parseInt(serviceInstance.getMetadata().get("grpc.port"));
+            return  ManagedChannelBuilder.forAddress(helloServiceHost, gRpcPort).usePlaintext(true)
+                    .build();
+        } else {
+            // TODO
+            return null;
+        }
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        channel = ManagedChannelBuilder.forAddress(helloServiceHost, helloServicePort).usePlaintext(true)
-                .build();
+
+
     }
 
-    public void setHelloServiceHost(String helloServiceHost) {
-        this.helloServiceHost = helloServiceHost;
-    }
-
-    public void setHelloServicePort(int helloServicePort) {
-        this.helloServicePort = helloServicePort;
-    }
 }

@@ -1,1 +1,10 @@
 server.port: 8092
+spring:
+  application:
+    name: grpc-client
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true

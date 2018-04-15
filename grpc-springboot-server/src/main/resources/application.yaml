@@ -2,3 +2,13 @@ server.port: 8091
 
 security.basic.enabled: false
 management.security.enabled: false
+
+spring:
+  application:
+    name: grpc-server
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+          tags: grpc.port=6565
