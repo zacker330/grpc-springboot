@@ -2,4 +2,5 @@ rootProject.name = 'grpc-springboot'
 include 'grpc-springboot-core'
 include 'grpc-springboot-server'
 include 'grpc-springboot-client-example'
+include 'grpc-consul-lb'
 

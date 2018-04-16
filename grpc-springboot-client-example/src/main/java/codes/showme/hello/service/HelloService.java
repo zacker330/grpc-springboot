@@ -2,8 +2,10 @@ package codes.showme.hello.service;
 
 import codes.showme.examples.GreeterGrpc;
 import codes.showme.examples.GreeterOuterClass;
+import codes.showme.hello.consul.ConsulNameResolver;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.util.RoundRobinLoadBalancerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -23,9 +26,9 @@ public class HelloService implements InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(HelloService.class);
 
+    private ManagedChannel channel;
 
-    @Resource
-    private DiscoveryClient discoveryClient;
+
 
     public String hello(String aString) {
         String result = "";
@@ -42,29 +45,19 @@ public class HelloService implements InitializingBean {
         return result;
     }
 
-    public Optional<ServiceInstance> service() {
-        return discoveryClient.getInstances(GRPC_SERVER_NAME)
-                .stream().findFirst();
-    }
-
     private ManagedChannel getChannel(){
-        if (service().isPresent()) {
-            final ServiceInstance serviceInstance = service().get();
-            final URI uri = serviceInstance.getUri();
-            final String helloServiceHost = uri.getHost();
-            int gRpcPort=Integer.parseInt(serviceInstance.getMetadata().get("grpc.port"));
-            return  ManagedChannelBuilder.forAddress(helloServiceHost, gRpcPort).usePlaintext(true)
-                    .build();
-        } else {
-            // TODO
-            return null;
-        }
+        return  ManagedChannelBuilder.forTarget("http://127.0.0.1:8500")
+                .usePlaintext(true)
+                .nameResolverFactory(new ConsulNameResolver.ConsulNameResolverProvider(GRPC_SERVER_NAME,5,false, Arrays.asList()))
+                .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
+                .usePlaintext(true)
+                .build();
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
-
+        channel = getChannel();
+        logger.info("init " + this.getClass());
     }
 
 }
