@@ -19,7 +19,7 @@ buildscript {
     }
 }
 
-group 'codes.showme.examples.grpc.springboot.server'
+group 'codes.showme.examples.grpc.springboot'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
@@ -33,6 +33,8 @@ ext {
 
 dependencies {
     compile project(':grpc-springboot-core')
+    compile project(':grpc-springboot-protobuf')
+    compile project(':grpc-consul-lb')
 
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
